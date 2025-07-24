@@ -49,3 +49,16 @@ fi
 // Обязательно дать права на выполнение этого файла
  chmod(hookPath, 0o755)
  ```
+
+ Самое главное добавить в package.json:
+
+ ```json
+ {
+    "scripts": {
+        "postinstall": "node hook-install.mjs",
+        "hook-install": "node hook-install.mjs"   
+    }
+ }
+ ```
+
+ *hook-install* добавляем что бы оставить ручное добавление/обновление нашего хука
