@@ -1,0 +1,28 @@
+#!/bin/sh
+
+export PATH="$(npm bin):$PATH"
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+cd "$PROJECT_ROOT" || {
+  echo "Error: Cannot cd to project root" >&2
+  exit 1
+}
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM -- '*.js' '*.jsx' '*.ts' '*.tsx')
+[ -z "$STAGED_FILES" ] && exit 0
+
+ESLINT="./node_modules/.bin/eslint"
+
+echo "ESlint..."
+
+ESLINT_OUTPUT=$("$ESLINT" --fix --quiet $STAGED_FILES 2>&1)
+if [ $? -ne 0 ]; then
+  echo "ESLint errors:"
+  echo "$ESLINT_OUTPUT"
+  echo "Run: yarn eslint --fix ${STAGED_FILES//$'\n'/ }"
+  exit 1
+fi
+
+echo "DONE"
+
+echo "$STAGED_FILES" | xargs git add -u 2>/dev/null
+exit 0
